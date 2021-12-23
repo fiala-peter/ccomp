@@ -2,6 +2,10 @@
 
 bool CastXprNode::type_check_impl()
 {
+	/*
+		Unless the type name specifies void type, the type name shall specify qualified
+		or unqualified scalar type and the operand shall have scalar type.
+	 */
 	XprNode *child_xpr = get_subxpr(0);
 	Type const &child_type = child_xpr->get_xpr_type();
 	Type const &casted_type = get_xpr_type();

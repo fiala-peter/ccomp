@@ -2,6 +2,9 @@
 
 bool BinaryPlusOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
 {
+	/*
+		either both operands shall have arithmetic type, or one operand shall be a pointer to an object type and the other shall have integral type.
+	*/
 	if (lhs->is_arithmetic() && rhs->is_arithmetic())
 	{
 		*lhs = *rhs = *ret = lhs->common_real_type(*rhs);
@@ -23,6 +26,11 @@ bool BinaryPlusOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
 
 bool BinaryMinusOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
 {
+	/*
+		- both operands have arithmetic type;
+		- both operands are pointers to qualified or unqualified versions of compatible object types; or
+		- the left operand is a pointer to an object type and the right operand has integral type
+	*/	
 	if (lhs->is_arithmetic() && rhs->is_arithmetic())
 	{
 		*lhs = *rhs = *ret = lhs->common_real_type(*rhs);
@@ -37,6 +45,7 @@ bool BinaryMinusOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
 	rhs->is_pointer() && rhs->referenced_type().is_complete_object()
 	&& lhs->unqualified().is_compatible_with(rhs->unqualified()))
 	{
+		// todo this should be ptrdiff_t
 		*ret = Type::llong_type();
 		return true;
 	}
@@ -46,6 +55,9 @@ bool BinaryMinusOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
 
 bool BinaryTimesOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
 {
+	/*
+		Each of the operands shall have arithmetic type
+	*/
 	if (lhs->is_arithmetic() && rhs->is_arithmetic())
 	{
 		*lhs = *rhs = *ret = lhs->common_real_type(*rhs);
@@ -57,6 +69,9 @@ bool BinaryTimesOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
 
 bool BinaryDivOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
 {
+	/*
+		Each of the operands shall have arithmetic type
+	*/
 	if (lhs->is_arithmetic() && rhs->is_arithmetic())
 	{
 		*lhs = *rhs = *ret = lhs->common_real_type(*rhs);
@@ -68,6 +83,9 @@ bool BinaryDivOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
 
 bool BinaryModOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
 {
+	/*
+		Each of the operands shall have integer type
+	*/
 	if (lhs->is_integer() && rhs->is_integer())
 	{
 		*lhs = *rhs = *ret = lhs->common_real_type(*rhs);
@@ -259,9 +277,6 @@ bool BinaryLessEqualOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
 	std::cerr << "Operands should be arithm<=arithm or ptr<=ptr" << std::endl;
 	return false;
 }
-
-
-
 
 
 bool BinaryLogicalAndOperator::type_check(Type *lhs, Type *rhs, Type *ret) const
