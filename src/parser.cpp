@@ -187,6 +187,22 @@ XprNode *Parser::parse_fieldname()
 
 XprNode *Parser::parse_primary_expression()
 {
+	/*
+	primary-expression:
+		identifier
+		constant
+		string-literal
+		( expression )
+
+	constant:
+		floating-constant
+		integer-constant
+		enumeration-constant
+		character-constant	
+
+	enumeration-constant
+		identifier
+	*/	
 	if (m_current_token->get_id() == Token::Id::IDENTIFIER)
 		return parse_identifier(true);
 
@@ -218,6 +234,21 @@ XprNode *Parser::parse_primary_expression()
 
 XprNode *Parser::parse_postfix_expression()
 {
+	/*
+	postfix-expression:
+		primary-expression
+		postfix-expression [ expression ]
+		postfix-expression ( argument-expression-list_opt )
+		postfix-expression . identifier
+		postfix-expression -> identifier
+		postfix-expression ++
+		postfix-expression --
+
+	argument-expression-list:
+		assignment-expression
+		argument-expression-list , assignment-expression		
+	*/	
+
 	XprNode *ret = parse_primary_expression();
 	if (ret == nullptr)
 	{
@@ -262,23 +293,19 @@ XprNode *Parser::parse_postfix_expression()
 			n->add_subxpr(idx_xpr);
 			if (!n->type_check())
 			{
-				delete n;
 				error_message("Error while parsing array subscript expression");
+				delete n;
 				return nullptr;
 			}
 			ret = n;
 		}
 		else if (token_id == Token::Id::PARENTHESES_OPEN)
 		{
+			expect(Token::Id::PARENTHESES_OPEN);
 			PostfixXprNode *function = new PostfixXprNode(XprNode::Id::FUNCTION_CALL);
 			function->add_subxpr(ret);
-			if (!expect(Token::Id::PARENTHESES_OPEN))
-			{
-				error_message("Error parsing function call expression");
-				delete function;
-				return nullptr;
-			}
-			while (m_current_token->get_id() != Token::Id::PARENTHESES_CLOSE)
+			bool was_comma = false;
+			while (was_comma || m_current_token->get_id() != Token::Id::PARENTHESES_CLOSE)
 			{
 				XprNode *x = parse_assignment_expression();
 				if (x == nullptr)
@@ -288,10 +315,16 @@ XprNode *Parser::parse_postfix_expression()
 					return nullptr;
 				}
 				function->add_subxpr(x);
+
 				if (m_current_token->get_id() == Token::Id::COMMA)
+				{
+					was_comma = true;
 					next_token();
+				}
+				else
+					was_comma = false;
 			}
-			next_token(); // consume ")"
+			expect(Token::Id::PARENTHESES_CLOSE); // consume ")"
 			if (!function->type_check())
 			{
 				error_message("Error type checking function call expression");
@@ -307,7 +340,12 @@ XprNode *Parser::parse_postfix_expression()
 			PostfixXprNode *n = new PostfixXprNode(token_id == Token::Id::POINT ? XprNode::Id::STRUCTURE_MEMBER : XprNode::Id::STRUCTURE_PTR_MEMBER);
 			n->add_subxpr(ret);
 			n->add_subxpr(fld);
-			n->type_check();
+			if (!n->type_check())
+			{
+				error_message("Error type checking structure member or pointer to member expression");
+				delete n;
+				return nullptr;
+			}
 			ret = n;
 		}
 		else
