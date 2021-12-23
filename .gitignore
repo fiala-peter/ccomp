@@ -50,3 +50,9 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# intermediate compiled files
+*.i
+*.lex
+*.s
+*.ast
