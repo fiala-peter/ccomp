@@ -357,6 +357,47 @@ XprNode *Parser::parse_postfix_expression()
 
 XprNode *Parser::parse_unary_expression()
 {
+	/*
+		unary-expression:
+			postfix-expression
+			++ unary-expression
+			-- unary-expression
+			unary-operator cast-expression
+			sizeof unary-expression
+			sizeof ( type-name )	
+	*/
+
+	struct
+	{
+		Token::Id tt;
+		XprNode::Id st;
+	} data1[] = {
+		{Token::Id::INCREMENT, XprNode::Id::PREINCREMENT},
+		{Token::Id::DECREMENT, XprNode::Id::PREDECREMENT},
+		{Token::Id::NO_TOKEN}};
+
+	for (size_t i = 0; data1[i].tt != Token::Id::NO_TOKEN; i++)
+	{
+		if (data1[i].tt == m_current_token->get_id())
+		{
+			next_token();
+			XprNode *c = parse_unary_expression();
+			if (c == nullptr)
+			{
+				error_message("Error parsing unary expression");
+				return nullptr;
+			}
+			UnaryXprNode *st = new UnaryXprNode(data1[i].st);
+			st->add_subxpr(c);
+			if (!st->type_check())
+			{
+				error_message("Error type checking unary expression");
+				return nullptr;
+			}
+			return st;
+		}
+	}
+
 	struct
 	{
 		Token::Id tt;
@@ -372,8 +413,7 @@ XprNode *Parser::parse_unary_expression()
 		{Token::Id::AMPERSAND, XprNode::Id::ADDRESS_OF},
 		{Token::Id::NO_TOKEN}};
 
-	size_t i;
-	for (i = 0; data[i].tt != Token::Id::NO_TOKEN; i++)
+	for (size_t i = 0; data[i].tt != Token::Id::NO_TOKEN; i++)
 	{
 		if (data[i].tt == m_current_token->get_id())
 		{
@@ -395,7 +435,7 @@ XprNode *Parser::parse_unary_expression()
 		}
 	}
 
-	if (Token::Id::SIZEOF == m_current_token->get_id())
+	if (m_current_token->get_id() == Token::Id::SIZEOF)
 	{
 		size_t val;
 		next_token();
@@ -414,14 +454,28 @@ XprNode *Parser::parse_unary_expression()
 				XprNode *c = parse_expression();
 				if (c == nullptr)
 				{
-					error_message("Error parsing unary expression");
+					error_message("Error parsing ( expression )");
 					return nullptr;
 				}
+				XprNode *a = new UnaryXprNode(XprNode::Id::SIZEOF);
+				a->add_subxpr(c);
+
+				if (!a->type_check())
+				{
+					error_message("Error type checking sizeof expression");
+					delete a;
+					return nullptr;
+				}
+
 				val = c->get_xpr_type().get_size_in_bytes();
-				delete c;
+				delete a;
 			}
 
-			expect(Token::Id::PARENTHESES_CLOSE);
+			if (!expect(Token::Id::PARENTHESES_CLOSE))
+			{
+				error_message("Error parsing sizeof ( typename/expression ) ");
+				return nullptr;
+			}
 		}
 		else // sizeof unary_expression
 		{
@@ -431,9 +485,21 @@ XprNode *Parser::parse_unary_expression()
 				error_message("Error parsing unary expression");
 				return nullptr;
 			}
+			XprNode *a = new UnaryXprNode(XprNode::Id::SIZEOF);
+			a->add_subxpr(c);
+
+			if (!a->type_check())
+			{
+				error_message("Error type checking sizeof expression");
+				delete a;
+				return nullptr;
+			}
+
 			val = c->get_xpr_type().get_size_in_bytes();
-			delete c;
+			delete a;
 		}
+		
+		// todo return type (size_t) should be selected properly
 		return new IntegerConstant(Type::ullong_type(), &val);
 	}
 
