@@ -12,12 +12,16 @@ bool PostfixXprNode::type_check_impl()
 	case Id::POSTINCREMENT:
 	case Id::POSTDECREMENT:
 	{
+		/*
+			The operand of the postfix increment or decrement operator shall have qualified or unqualified scalar type
+			and shall be a modifiable lvalue.
+		*/
 		if (!first_arg->is_modifiable_lvalue())
 		{
 			std::cerr << "Argument of the postin/decrement operator should be a modifiable lvalue." << std::endl;
 			return false;
 		}
-		if (!first_type.is_real() && !first_type.is_pointer())
+		if (!first_type.is_scalar())
 		{
 			std::cerr << "Argument of the postin/decrement operator should be real or pointer type." << std::endl;
 			return false;
@@ -27,6 +31,15 @@ bool PostfixXprNode::type_check_impl()
 	}
 	case Id::FUNCTION_CALL:
 	{
+		/*
+			The expression that denotes the called function shall have type pointer to function returning void
+			or returning an object type other than array.
+			If the expression that denotes the called function has a type that includes a prototype,
+			the number of arguments shall agree with the number of parameters.
+			Each argument shall have a type such that its value may be assigned to an object with the unqualified
+			version of the type of its corresponding parameter.
+		*/
+
 		// return type must be void or complete object
 		Type const &function_type = first_type.referenced_type();
 		Type const &return_type = function_type.return_type();
@@ -80,11 +93,16 @@ bool PostfixXprNode::type_check_impl()
 					set_subxpr(i + 1, conditional_cast(arg_xpr, Type::double_type()));
 			}
 		}
-		set_xpr_type(first_type.referenced_type().return_type());
+		set_xpr_type(return_type);
 		return true;
 	}
 	case Id::ARRAY_SUBSCRIPT:
 	{
+		/*
+			One of the expressions shall have type ``pointer to object type ,''
+			the other expression shall have integral type,
+			and the result has type `` type .''
+		*/
 		Type const &second_type = get_subxpr(1)->get_xpr_type();
 		if (first_type.is_pointer() && first_type.referenced_type().is_complete_object() && second_type.is_integer())
 		{
@@ -106,22 +124,27 @@ bool PostfixXprNode::type_check_impl()
 			set_xpr_type(second_type.element_type());
 			return true;
 		}
-		std::cerr << "One argument of an array subscript expression should be a pointer or an array, the other should be an integer" << std::endl;
+		std::cerr << "One argument of an array subscript expression should be a pointer to complete object or an array, the other should be an integer" << std::endl;
 		return false;
 	}
 	case Id::STRUCTURE_PTR_MEMBER:
 	{
-		IdentifierXprNode *second_xpr = static_cast<IdentifierXprNode *>(get_subxpr(1));
+		/*
+			The first operand of the -> operator shall have type ``pointer to qualified or unqualified structure''
+			or ``pointer to qualified or unqualified union,'' and the second operand shall name a member of the type pointed to.
+		*/
 		if (!first_type.is_pointer() || !first_type.referenced_type().is_structure())
 		{
 			std::cerr << "Left hand side of the structure member operator shall be pointer to a structure type";
 			return false;
 		}
 		Type const &structure_type = first_type.referenced_type();
-		Type const *member_type = structure_type.lookup_structure_field_type(second_xpr->get_identifier());
+		IdentifierXprNode *second_xpr = static_cast<IdentifierXprNode *>(get_subxpr(1));
+		auto field_name = second_xpr->get_identifier();
+		Type const *member_type = structure_type.lookup_structure_field_type(field_name);
 		if (member_type == nullptr)
 		{
-			std::cerr << "Could not find field member in structure type";
+			std::cerr << "Could not find field member " + field_name + " in structure type";
 			return false;
 		}
 		second_xpr->set_xpr_type(*member_type);
@@ -130,17 +153,22 @@ bool PostfixXprNode::type_check_impl()
 	}
 	case Id::STRUCTURE_MEMBER:
 	{
-		IdentifierXprNode *second_xpr = static_cast<IdentifierXprNode *>(get_subxpr(1));
+		/*
+			The first operand of the . operator shall have a qualified or unqualified structure or union type,
+			and the second operand shall name a member of that type.
+		*/
 		if (!first_type.is_structure())
 		{
 			std::cerr << "Left hand side of the structure member operator shall be a structure type";
 			return false;
 		}
 		Type const &structure_type = first_type;
-		Type const *member_type = structure_type.lookup_structure_field_type(second_xpr->get_identifier());
+		IdentifierXprNode *second_xpr = static_cast<IdentifierXprNode *>(get_subxpr(1));
+		auto field_name = second_xpr->get_identifier();
+		Type const *member_type = structure_type.lookup_structure_field_type(field_name);
 		if (member_type == nullptr)
 		{
-			std::cerr << "Could not find field member in structure type";
+			std::cerr << "Could not find field member " + field_name + " in structure type";
 			return false;
 		}
 		second_xpr->set_xpr_type(*member_type);
