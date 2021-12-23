@@ -498,7 +498,7 @@ XprNode *Parser::parse_unary_expression()
 			val = c->get_xpr_type().get_size_in_bytes();
 			delete a;
 		}
-		
+
 		// todo return type (size_t) should be selected properly
 		return new IntegerConstant(Type::ullong_type(), &val);
 	}
@@ -641,6 +641,11 @@ XprNode *Parser::parse_assignment_expression()
 
 XprNode *Parser::parse_cast_expression()
 {
+	/*
+	cast-expression:
+		unary-expression
+		( type-name ) cast-expression
+	*/
 	if (m_current_token->get_id() == Token::Id::PARENTHESES_OPEN)
 	{
 		next_token();
