@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 		// lexing
 		std::fstream fin(prepname);
 		Lexer lexer;
-		lexer.read_token_list(fin);
+		lexer.lex_input(fin);
 		fin.close();
 		std::cout << "Lexing complete." << std::endl;
 		if (lexname != nullptr)
