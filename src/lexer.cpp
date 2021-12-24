@@ -3,7 +3,7 @@
 #include <cstring>
 #include <string>
 
-char const *lex_floating_constant(char const *str, Token *token)
+char const *Lexer::lex_floating_constant(char const *str, Token *token)
 {
 	// floating constant
 	char const *end = str;
@@ -33,7 +33,7 @@ char const *lex_floating_constant(char const *str, Token *token)
 	return str;
 }
 
-char const *lex_decimal_integer_constant(char const *str, Token *token)
+char const *Lexer::lex_decimal_integer_constant(char const *str, Token *token)
 {
 	// integer constant
 	long long c = 0;
@@ -46,7 +46,7 @@ char const *lex_decimal_integer_constant(char const *str, Token *token)
 	return end;
 }
 
-char const *lex_octal_integer_constant(char const *str, Token *token)
+char const *Lexer::lex_octal_integer_constant(char const *str, Token *token)
 {
 	long long c = 0;
 	char const *end = str;
@@ -61,10 +61,10 @@ char const *lex_octal_integer_constant(char const *str, Token *token)
 	return end;
 }
 
-char const *lex_hexadecimal_integer_constant(char const *str, Token *token)
+char const *Lexer::lex_hexadecimal_integer_constant(char const *str, Token *token)
 {
 	long long c = 0;
-	char const *end = str + 2;	// skip 0x prefix
+	char const *end = str + 2; // skip 0x prefix
 	while (isxdigit(*end))
 	{
 		c *= 16;
@@ -82,21 +82,21 @@ char const *lex_hexadecimal_integer_constant(char const *str, Token *token)
 	return end;
 }
 
-char const *lex_integer_constant(char const *str, Token *token)
+char const *Lexer::lex_integer_constant(char const *str, Token *token)
 {
 	// integer constant
 	if (!isdigit(*str))
 		return str;
 	if (*str != '0')
 		return lex_decimal_integer_constant(str, token);
-	if (*str == '0' && *(str+1) != 'x' && *(str+1) != 'X')
+	if (*str == '0' && *(str + 1) != 'x' && *(str + 1) != 'X')
 		return lex_octal_integer_constant(str, token);
-	if (*str == '0' && (*(str+1) == 'x' || *(str+1) != 'X'))
+	if (*str == '0' && (*(str + 1) == 'x' || *(str + 1) != 'X'))
 		return lex_hexadecimal_integer_constant(str, token);
 	return str;
 }
 
-char const *lex_string_literal(char const *str, Token *token)
+char const *Lexer::lex_string_literal(char const *str, Token *token)
 {
 	char const *end = str;
 	// string literal
@@ -106,13 +106,13 @@ char const *lex_string_literal(char const *str, Token *token)
 		while (*end != '\0' && *end != '\"')
 		{
 			end++;
-			if (*end == '\\' && *(end+1) == '\"')
+			if (*end == '\\' && *(end + 1) == '\"')
 				end += 2;
 		}
 		if (*end == '\0')
 			return str;
 		end++;
-		std::string data(str+1, end-1);
+		std::string data(str + 1, end - 1);
 		*token = Token(Token::Id::STRING_LITERAL);
 		token->set_string(data);
 		return end;
@@ -120,8 +120,7 @@ char const *lex_string_literal(char const *str, Token *token)
 	return str;
 }
 
-
-char const *lex_character_constant(char const *str, Token *token)
+char const *Lexer::lex_character_constant(char const *str, Token *token)
 {
 	char const *end = str;
 	// string literal
@@ -131,7 +130,7 @@ char const *lex_character_constant(char const *str, Token *token)
 		while (*end != '\0' && *end != '\'')
 		{
 			end++;
-			if (*end == '\\' && *(end+1) == '\'')
+			if (*end == '\\' && *(end + 1) == '\'')
 				end += 2;
 		}
 		if (*end == '\0')
@@ -145,8 +144,7 @@ char const *lex_character_constant(char const *str, Token *token)
 	return str;
 }
 
-
-char const *read_next_token(char const *str, Token *token)
+char const *Lexer::read_next_token(char const *str, Token *token)
 {
 	while (*str != '\0' && isspace(*str))
 		str++;
@@ -296,7 +294,7 @@ char const *read_next_token(char const *str, Token *token)
 	return str;
 }
 
-void Lexer::read_token_list(std::istream &is)
+void Lexer::lex_input(std::istream &is)
 {
 	enum
 	{
