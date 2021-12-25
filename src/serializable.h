@@ -16,11 +16,17 @@
 /** @brief base class for the definition of the serializable interface */
 struct Serializable
 {
-	/** \brief print the contents to an output stream */
+	/** \brief print the contents to an output stream
+	 * @param[in] os the output stream
+	 * @param[in] level tree depth level
+	*/
 	virtual void print(std::ostream &os, size_t level = 0) const = 0;
 };
 
-/** @brief operator to put the contents to an output stream */
+/** @brief operator to put the contents to an output stream
+ * @param[in] os the output stream
+ * @param[in] ser the serializable object reference
+*/
 std::ostream &operator<<(std::ostream &os, Serializable const &ser);
 
 #endif
