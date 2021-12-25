@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
 		std::cout << "Usage: " << argv[0] << " [options] <input name>\n";
 		return 0;
 	}
-	char const *inputname = argv[1];
-	for (int i = 2; i < argc; ++i)
+	char const *inputname;
+	for (int i = 1; i < argc; ++i)
 	{
 		if (strcmp(argv[i], "-o") == 0)
 			asmname = argv[++i];
@@ -31,6 +31,8 @@ int main(int argc, char *argv[])
 			lexname = argv[++i];
 		else if (strcmp(argv[i], "-ast") == 0)
 			astname = argv[++i];
+		else
+			inputname = argv[i];
 	}
 
 	try
