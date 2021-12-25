@@ -21,7 +21,7 @@ public:
 	void print(std::ostream &os, size_t level = 0) const override
 	{
 		for (size_t i = 0; i < level; i++)
-			os << "    ";
+			os << ((i == level - 1) ? "+---" : "    ");
 		os << m_identifier << ": " << get_xpr_type() << std::endl;
 	}
 
