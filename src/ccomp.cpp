@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
 	if (argc < 2)
 	{
-		std::cout << "Usage: ccomp [options] <input name>\n";
+		std::cout << "Usage: " << argv[0] << " [options] <input name>\n";
 		return 0;
 	}
 	char const *inputname = argv[1];

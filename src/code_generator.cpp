@@ -190,8 +190,8 @@ CodeGenerator::CodeGenerator(std::ostream &os)
 					  Register::Id::XMM12, Register::Id::XMM13, Register::Id::XMM14, Register::Id::XMM15};
 
 #ifdef _WIN32
-	m_integer_parameters = {Register::CX, Register::DX, Register::R8, Register::R9};
-	m_floating_parameters = {Register::XMM0, Register::XMM1, Register::XMM2, Register::XMM3};
+	m_integer_parameters = {Register::Id::CX, Register::Id::DX, Register::Id::R8, Register::Id::R9};
+	m_floating_parameters = {Register::Id::XMM0, Register::Id::XMM1, Register::Id::XMM2, Register::Id::XMM3};
 
 #else
 	m_integer_parameters = {Register::Id::DI, Register::Id::SI, Register::Id::DX,
