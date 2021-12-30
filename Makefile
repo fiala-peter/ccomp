@@ -7,11 +7,15 @@ LFLAGS =
 SRCDIR   = src
 OBJDIR   = obj
 BINDIR   = bin
+TESTDIR   = test_inputs
 
 SOURCES  := $(wildcard $(SRCDIR)/*.cpp)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)
 OBJECTS  := $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 DEPS  	 := $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.d)
+TEST_SOURCES := $(wildcard $(TESTDIR)/*.c)
+TEST_ASMS    := $(TEST_SOURCES:$(TESTDIR)/%.c=$(TESTDIR)/%.s)
+TEST_BINS    := $(TEST_SOURCES:$(TESTDIR)/%.c=$(TESTDIR)/%.out)
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
 	$(CXX) $(OBJECTS) $(LFLAGS) -o $@
@@ -25,8 +29,16 @@ $(DEPS): ;
 
 .PHONY: clean
 clean:
-	rm -f $(OBJECTS) $(BINDIR)/$(TARGET) $(DEPS) test_inputs/*.s test_inputs/*.lex test_inputs/*.ast test_inputs/*.i
+	rm -f $(OBJECTS) $(BINDIR)/$(TARGET) $(DEPS) $(TEST_ASMS)
 
 .PHONY: doc
 doc: $(SOURCES) $(INCLUDES)
 	doxygen
+
+$(TEST_ASMS): $(TESTDIR)/%.s : $(TESTDIR)/%.c
+	bin/ccomp $< -o $@
+
+$(TEST_BINS): $(TESTDIR)/%.out : $(TESTDIR)/%.s
+	gcc $< -o $@
+
+test: $(TEST_BINS)
