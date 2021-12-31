@@ -1,5 +1,4 @@
-int printf(char const *);
-int scanf(char const *);
+#include <stdio.h>
 
 typedef unsigned long number_t;
 

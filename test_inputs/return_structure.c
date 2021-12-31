@@ -15,8 +15,8 @@ struct a f(int i1, int i2, int i3)
 int main(void)
 {
 	struct a c;
-	c = f(1, 2, 3);
 	int q = c.a;
 	int s = c.h;
+	c = f(1, 2, 3);
 	return 0;
 }

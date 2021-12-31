@@ -10,10 +10,9 @@ int main(void)
 	char a = 'a';
 	char b = 'b';
 	char c = '\0x23';
-	char d = '\231';
+	char d = '\131';
 	
 	static int local_static_int;
-	int b;
 
 	static_int = 1;
 	plain_int = 2;
