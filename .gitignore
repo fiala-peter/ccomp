@@ -56,3 +56,6 @@ dkms.conf
 *.lex
 *.s
 *.ast
+
+# generated documentation
+doc/*
