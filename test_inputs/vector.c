@@ -1,5 +1,4 @@
-int scanf(char const *, ...);
-int printf(char const *, ...);
+#include <stdio.h>
 
 double sum(double a[], int n)
 {

@@ -7,6 +7,8 @@ void LocalTable::push(int scope, std::string const &var, size_t size, size_t ali
 		push_front(LocalTableEntry(var, 0, scope));
 		return;
 	}
+	if (size == 0 || align == 0)
+		throw __FILE__ ": pushing an object of zero size or alignment to the local table!";
 	size_t offset = empty() ? 0 : front().get_offset();
 	offset += size;
 	if (offset % align != 0)

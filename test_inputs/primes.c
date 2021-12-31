@@ -1,9 +1,5 @@
-typedef unsigned long size_t;
-
-int printf(char *, ...);
-int scanf(char *, ...);
-void *malloc(size_t);
-void free(void *);
+#include <stdio.h>
+#include <stdlib.h>
 
 int is_prime(int d, int primes[])
 {

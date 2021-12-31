@@ -52,14 +52,45 @@ XprNode *Parser::parse_character_constant()
 	std::string str = m_current_token->get_string();
 	str = std::string(str.begin() + 1, str.end() - 1);
 	int v;
-	if (str == "\\0")
-		v = 0;
-	else if (str == "\\n")
-		v = 13;
-	else if (str[0] != '\\')
-		v = str[0];
+	if (str[0] == '\\')
+	{
+		if (str == "\\'")
+			v = '\'';
+		else if (str == "\\\"")
+			v = '\"';
+		else if (str == "\\?")
+			v = '\?';
+		else if (str == "\\\\")
+			v = '\\';
+		else if (str == "\\a")
+			v = '\a';
+		else if (str == "\\b")
+			v = '\b';
+		else if (str == "\\f")
+			v = '\f';
+		else if (str == "\\n")
+			v = '\n';
+		else if (str == "\\r")
+			v = '\r';
+		else if (str == "\\t")
+			v = '\t';
+		else if (str == "\\v")
+			v = '\v';
+		else if (str[1] == 'x') // hexadecimal
+		{
+			v = 0;
+			for (auto it = str.begin() + 1; it != str.end(); it++)
+				v = 16 * v + (*it - '0');
+		}
+		else // octal
+		{
+			v = 0;
+			for (auto it = str.begin() + 1; it != str.end(); it++)
+				v = 8 * v + (*it - '0');
+		}
+	}
 	else
-		throw __FILE__ ": Unprocessed character constant";
+		v = str[0];
 	IntegerConstant *st = new IntegerConstant(Type::int_type(), &v);
 
 	next_token();
@@ -198,11 +229,11 @@ XprNode *Parser::parse_primary_expression()
 		floating-constant
 		integer-constant
 		enumeration-constant
-		character-constant	
+		character-constant
 
 	enumeration-constant
 		identifier
-	*/	
+	*/
 	if (m_current_token->get_id() == Token::Id::IDENTIFIER)
 		return parse_identifier(true);
 
@@ -246,8 +277,8 @@ XprNode *Parser::parse_postfix_expression()
 
 	argument-expression-list:
 		assignment-expression
-		argument-expression-list , assignment-expression		
-	*/	
+		argument-expression-list , assignment-expression
+	*/
 
 	XprNode *ret = parse_primary_expression();
 	if (ret == nullptr)
@@ -364,7 +395,7 @@ XprNode *Parser::parse_unary_expression()
 			-- unary-expression
 			unary-operator cast-expression
 			sizeof unary-expression
-			sizeof ( type-name )	
+			sizeof ( type-name )
 	*/
 
 	struct
@@ -1124,6 +1155,12 @@ bool Parser::parse_declaration_specifiers(Declaration *decl)
 			// if typedef name
 			if (m_current_token->get_id() == Token::Id::IDENTIFIER)
 			{
+				// it needs to be checked if type_specifiers is empty or not
+				// if it is not empty then this id should be a declarator
+				// and parsing of specifiers should be over
+				if (!type_specifiers.empty())
+					break;
+
 				auto pste = m_st_ptr->lookup_global(m_current_token->get_string());
 				if (pste != nullptr && pste->get_category() == SymbolTableEntry::TYPE)
 				{
@@ -1908,7 +1945,6 @@ bool Parser::check_declaration(Declaration *decl)
 		m_st_ptr->install_type(decl->get_identifier(), decl->get_type());
 	else
 		m_st_ptr->install_object(decl->get_identifier(), decl->get_type(), decl->get_storage());
-
 
 #if 0
 		if (is_file_scope)

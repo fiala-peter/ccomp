@@ -1,5 +1,4 @@
-int printf(char *, ...);
-int scanf(char *, ...);
+#include <stdio.h>
 
 int main(void)
 {

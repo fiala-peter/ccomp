@@ -24,7 +24,7 @@ int main(void)
     }
 
     {
-        int a[] = {1, 2, 3, 4};
+        int a[4] = {1, 2, 3, 4};
         int *p;
         p = a;
         p += 2;

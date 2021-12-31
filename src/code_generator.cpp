@@ -695,7 +695,7 @@ Register CodeGenerator::generate_integer_constant(XprNode const *xpr)
 {
 	size_t s = xpr->get_xpr_type().get_size_in_bytes();
 	long long val = dynamic_cast<IntegerConstant const *>(xpr)->evaluate_constant();
-	Register reg = m_reg_allocator.allocate();
+	Register reg = m_reg_allocator.allocate(Register::Type::INTEGER);
 	reg.set_size(s);
 	mov(val, reg);
 	return reg;
@@ -713,7 +713,7 @@ Register CodeGenerator::generate_assignment(XprNode const *xpr)
 		size_t ptr_size = Type::int_type().pointer_to().get_size_in_bytes();
 		std::string varname = idxpr->get_identifier();
 		std::string memname = m_local_table.lookup(varname);
-		lhs_addr = m_reg_allocator.allocate();
+		lhs_addr = m_reg_allocator.allocate(Register::Type::INTEGER);
 		lhs_addr.set_size(ptr_size);
 		std::string comment = "load address of " + varname + " into " + lhs_addr.str();
 		print_code_line(mnemonic("lea", ptr_size), memname, lhs_addr.str(), comment);
@@ -737,7 +737,7 @@ Register CodeGenerator::generate_assignment(XprNode const *xpr)
 		size_t block_size = 8;
 		size_t to_copy = result_size;
 		size_t offset = 0;
-		Register tmp = m_reg_allocator.allocate();
+		Register tmp = m_reg_allocator.allocate(Register::Type::INTEGER);
 		while (to_copy > 0)
 		{
 			while (to_copy < block_size)
@@ -775,7 +775,7 @@ Register CodeGenerator::generate_plusassignment(XprNode const *xpr)
 		size_t ptr_size = Type::int_type().pointer_to().get_size_in_bytes();
 		std::string varname = idxpr->get_identifier();
 		std::string memname = m_local_table.lookup(varname);
-		lhs_addr = m_reg_allocator.allocate();
+		lhs_addr = m_reg_allocator.allocate(Register::Type::INTEGER);
 		lhs_addr.set_size(ptr_size);
 		std::string comment = "load address of " + varname + " into " + lhs_addr.str();
 		print_code_line(mnemonic("lea", ptr_size), memname, lhs_addr.str(), comment);
@@ -1047,7 +1047,7 @@ Register CodeGenerator::generate_relational(XprNode const *xpr)
 	m_reg_allocator.release(lhs_reg);
 	m_reg_allocator.release(rhs_reg);
 	// for floating point arguments a new register needs to be allocated
-	Register res_reg = m_reg_allocator.allocate();
+	Register res_reg = m_reg_allocator.allocate(Register::Type::INTEGER);
 	print_code_line(opcode, true_label.str());
 	// place 0/1 result in lreg, resized to int
 	res_reg.set_size(Type::int_type().get_size_in_bytes());
@@ -1082,7 +1082,7 @@ Register CodeGenerator::generate_logical_andor(XprNode const *xpr)
 		generate_short_circuit_rec(xpr, id, "jz", shortcut_label);
 	else // LOGICAL_OR
 		generate_short_circuit_rec(xpr, id, "jnz", shortcut_label);
-	Register ret = m_reg_allocator.allocate();
+	Register ret = m_reg_allocator.allocate(Register::Type::INTEGER);
 	ret.set_size(Type::int_type().get_size_in_bytes());
 	if (xpr->get_id() == XprNode::Id::LOGICAL_AND)
 		mov(1, ret);
@@ -1409,7 +1409,7 @@ Register CodeGenerator::generate_function_call(XprNode const *xpr)
 		Register::Id ret_id = xpr->get_xpr_type().is_floating() ? Register::Id::XMM0 : Register::Id::AX;
 		Register ret_reg = m_reg_allocator.allocate(ret_id);
 		ret_reg.set_size(xpr->get_xpr_type().get_size_in_bytes());
-		Register ret = m_reg_allocator.allocate();
+		Register ret = m_reg_allocator.allocate(xpr->get_xpr_type().is_floating() ? Register::Type::FLOATING : Register::Type::INTEGER);
 		ret.set_size(xpr->get_xpr_type().get_size_in_bytes());
 		std::string comment = "move return value to " + ret.str();
 		mov(ret_reg, ret, comment);
@@ -1418,7 +1418,7 @@ Register CodeGenerator::generate_function_call(XprNode const *xpr)
 	}
 
 	// TODO void functions return a dummy allocated register
-	return m_reg_allocator.allocate();
+	return m_reg_allocator.allocate(Register::Type::INTEGER);
 }
 
 Register CodeGenerator::generate_floating_constant(FloatingConstant const &xpr)
@@ -1444,7 +1444,7 @@ Register CodeGenerator::generate_string_literal(StringLiteralNode const &xpr)
 	{
 		if (str == xpr_str)
 		{
-			Register reg = m_reg_allocator.allocate();
+			Register reg = m_reg_allocator.allocate(Register::Type::INTEGER);
 			reg.set_size(xpr.get_xpr_type().get_size_in_bytes());
 			print_code_line(mnemonic("lea", reg.get_size()), lab.str() + "(%rip)", reg.str());
 			return reg;
@@ -1488,7 +1488,7 @@ Register CodeGenerator::generate_address_of(XprNode const &xpr)
 		IdentifierXprNode const *id_xpr = static_cast<IdentifierXprNode const *>(lvalue);
 		// if lvalue is an id, then its address is stored in a newly allocated register
 		// allocate register and set to pointer size
-		Register reg = m_reg_allocator.allocate();
+		Register reg = m_reg_allocator.allocate(Register::Type::INTEGER);
 		reg.set_size(ptr_size);
 		// lookup the memory address of the id in the local variable table
 		std::string const &varname = id_xpr->get_identifier();
@@ -1545,7 +1545,7 @@ Register CodeGenerator::generate_crement(XprNode const &xpr)
 	if (op_id == XprNode::Id::POSTINCREMENT || op_id == XprNode::Id::POSTDECREMENT)
 	{
 		// fetch result into register
-		result_reg = m_reg_allocator.allocate();
+		result_reg = m_reg_allocator.allocate(Register::Type::INTEGER);
 		result_reg.set_size(result_size);
 		comment = "fetch result before in/decrement as expression value";
 		print_code_line(mnemonic("mov", result_reg.get_size()), memname, result_reg.str(), comment);
@@ -1560,7 +1560,7 @@ Register CodeGenerator::generate_crement(XprNode const &xpr)
 	if (op_id == XprNode::Id::PREINCREMENT || op_id == XprNode::Id::PREDECREMENT)
 	{
 		// fetch result into register
-		result_reg = m_reg_allocator.allocate();
+		result_reg = m_reg_allocator.allocate(Register::Type::INTEGER);
 		result_reg.set_size(result_size);
 		comment = "fetch in/decremented result as expression value";
 		print_code_line(mnemonic("mov", result_reg.get_size()), memname, result_reg.str(), comment);
