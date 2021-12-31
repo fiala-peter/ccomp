@@ -35,10 +35,10 @@ clean:
 doc: $(SOURCES) $(INCLUDES)
 	doxygen
 
-$(TEST_ASMS): $(TESTDIR)/%.s : $(TESTDIR)/%.c
+$(TEST_ASMS): %.s : %.c
 	bin/ccomp $< -o $@
 
-$(TEST_BINS): $(TESTDIR)/%.out : $(TESTDIR)/%.s
+$(TEST_BINS): %.out : %.s
 	gcc $< -o $@
 
 test: $(TEST_BINS)
