@@ -1458,6 +1458,12 @@ bool Parser::parse_declaration()
 			return false;
 		}
 
+		// BIG TODO HERE
+		// initializer should be parsed before installing, as the initializer can complete the type
+		// If an identifier for an object is declared with no linkage, the type for the object
+		// shall be complete by the end of its declarator, or by the end of its init-declarator
+		// if it has an initializer.
+
 		if (!check_declaration(&decl))
 		{
 			error_message("Error checking declarator");
@@ -1941,6 +1947,9 @@ bool Parser::check_declaration(Declaration *decl)
 			return false;
 		}
 	}
+
+	// BIG TODO HERE
+	// installation should be separated from checking
 	if (decl->is_typedef())
 		m_st_ptr->install_type(decl->get_identifier(), decl->get_type());
 	else
