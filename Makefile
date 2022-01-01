@@ -29,7 +29,7 @@ $(DEPS): ;
 
 .PHONY: clean
 clean:
-	rm -f $(OBJECTS) $(BINDIR)/$(TARGET) $(DEPS) $(TEST_ASMS)
+	rm -f $(OBJECTS) $(BINDIR)/$(TARGET) $(DEPS) $(TEST_ASMS) $(TEST_BINS)
 
 .PHONY: doc
 doc: $(SOURCES) $(INCLUDES)
