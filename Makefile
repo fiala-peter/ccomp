@@ -1,7 +1,7 @@
 TARGET = ccomp
 
 CXX = g++
-CFLAGS = -c -g -pedantic -std=c++17
+CFLAGS = -c -g -pedantic -std=c++17 -fPIE
 LFLAGS =
 
 SRCDIR   = src
