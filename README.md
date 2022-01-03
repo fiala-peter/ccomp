@@ -8,7 +8,7 @@ ccomp compiles C code in the following stages
 - The Preprocessor processes a set of source files into a single translation unit
 - The Lexer transforms the translation unit into a linear sequence of C language tokens
 - The Parser transforms the sequence of tokens into an abstract syntax tree
-- The Code Generator generates assebly language code from the syntax tree
+- The Code Generator generates assembly language code from the syntax tree
 
 # Preprocessor
 
