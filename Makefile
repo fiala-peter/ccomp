@@ -1,7 +1,7 @@
 TARGET = ccomp
 
 CXX = g++
-CFLAGS = -c -g -pedantic -std=c++17 -fPIE
+CFLAGS = -c -g -pedantic -std=c++17
 LFLAGS =
 
 SRCDIR   = src
@@ -39,6 +39,6 @@ $(TEST_ASMS): %.s : %.c
 	bin/ccomp $< -o $@
 
 $(TEST_BINS): %.out : %.s
-	gcc $< -o $@
+	gcc -fPIE $< -o $@
 
 test: $(TEST_BINS)
