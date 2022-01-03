@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 	char const *asmname = "a.s";   // name of output
 	char const *lexname = nullptr; // name of lex file
 	char const *astname = nullptr; // name of syntax tree file
-	char const *prepname = "a.prep";
+	char const *prepname = "a.i";
 
 	if (argc < 2)
 	{
@@ -89,7 +89,6 @@ int main(int argc, char *argv[])
 		
 		// delete type tree
 		Type::free_pool();
-
 	}
 	catch (std::exception const &e)
 	{

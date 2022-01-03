@@ -1251,20 +1251,6 @@ std::vector<Register::Id> CodeGenerator::assign_registers_to_parameters(XprNode 
 {
 	std::vector<Register::Id> regs;
 
-#ifdef _WIN32
-	size_t i = 0;
-	for (size_t s = 1; s < xpr->get_num_subxprs(); ++s)
-	{
-		XprNode const *param_xpr = xpr->get_subxpr(s);
-		Type const &param_type = param_xpr->get_xpr_type();
-		if (param_type.is_integer() || param_type.is_pointer() || param_type.is_array())
-			regs.push_back(m_integer_parameters[i++]);
-		else if (param_type.is_floating())
-			regs.push_back(m_floating_parameters[i++]);
-		else
-			throw __FILE__ ": parameter register unknown type";
-	}
-#else
 	size_t i_cntr = 0, f_cntr = 0;
 	for (int s = 1; s < xpr->get_num_subxprs(); ++s)
 	{
@@ -1287,7 +1273,6 @@ std::vector<Register::Id> CodeGenerator::assign_registers_to_parameters(XprNode 
 		else
 			regs.push_back(Register::Id::NO_REGISTER);
 	}
-#endif
 	return regs;
 }
 
