@@ -1,6 +1,5 @@
 enum color;
 
-/*
 int f()
 {
 	enum color
@@ -9,7 +8,6 @@ int f()
 	};
 	enum color b;
 }
-*/
 
 int main(void)
 {
