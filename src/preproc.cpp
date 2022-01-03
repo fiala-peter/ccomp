@@ -278,6 +278,14 @@ std::list<PreprocToken> Preprocessor::tokenize(char const *fname)
 			throw __FILE__ ": unprocessed preprocessor token.";
 	}
 
+	// insert newline character to end if needed
+	if (pp_token_list.empty() || pp_token_list.back().get_category() != PreprocToken::NEW_LINE)
+	{
+		PreprocToken pt;
+		pt.set_category(PreprocToken::NEW_LINE);
+		pp_token_list.push_back(pt);
+	}
+
 	return pp_token_list;
 }
 
