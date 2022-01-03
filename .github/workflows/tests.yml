@@ -8,4 +8,4 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Run tests
-        run: make clean bin/ccomp test
+        run: mkdir obj; mkdir bin; make clean bin/ccomp test
