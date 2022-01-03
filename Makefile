@@ -39,6 +39,6 @@ $(TEST_ASMS): %.s : %.c
 	bin/ccomp $< -o $@
 
 $(TEST_BINS): %.out : %.s
-	gcc -fPIE $< -o $@
+	gcc $< -o $@ -no-pie
 
 test: $(TEST_BINS)
