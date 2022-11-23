@@ -822,7 +822,7 @@ Register CodeGenerator::generate_identifier_rvalue(IdentifierXprNode const *xpr)
 	{
 		result_size = xpr_type.pointer_to().get_size_in_bytes();
 		opcode = "mov";
-		memname = "$" + idname;
+		memname = idname + "@GOTPCREL(%rip)";
 	}
 	else if (xpr_type.is_array()) // if id is array, its address (pointer) is evaluated
 	{
