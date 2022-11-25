@@ -151,7 +151,7 @@ char const *Lexer::read_next_token(char const *str, Token *token)
 	if (*str == '\0')
 		return nullptr;
 
-	// read keywords
+	// try to read keywords
 	struct
 	{
 		Token::Id t;
@@ -200,6 +200,7 @@ char const *Lexer::read_next_token(char const *str, Token *token)
 		}
 	}
 
+	// try to read operators
 	struct
 	{
 		Token::Id t;
@@ -263,7 +264,7 @@ char const *Lexer::read_next_token(char const *str, Token *token)
 		}
 	}
 
-	// identifier
+	// try to read an identifier
 	char const *end = str;
 	if (isalpha(*end) || *end == '_')
 	{
@@ -275,18 +276,22 @@ char const *Lexer::read_next_token(char const *str, Token *token)
 		return end;
 	}
 
+	// try to read floating constant
 	end = lex_floating_constant(str, token);
 	if (end != str)
 		return end;
 
+	// try to read integer constant
 	end = lex_integer_constant(str, token);
 	if (end != str)
 		return end;
 
+	// try to read string literal
 	end = lex_string_literal(str, token);
 	if (end != str)
 		return end;
 
+	// try to read character constant
 	end = lex_character_constant(str, token);
 	if (end != str)
 		return end;
