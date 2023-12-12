@@ -1,3 +1,12 @@
+/**
+ * @file parser.h
+ * @author Peter Fiala (fiala@hit.bme.hu)
+ * @brief 
+ * @version 0.1
+ * @date 2022-11-25
+ * 
+ * @copyright Copyright (c) 2022
+ */
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
 
@@ -12,6 +21,9 @@
 
 #include <vector>
 
+/**
+ * @brief The ::Parser class transforms the list of tokens into a syntax tree
+ */
 class Parser
 {
 private:
@@ -62,33 +74,67 @@ private:
 	std::shared_ptr<StmNode> parse_statement();
 	std::shared_ptr<CompoundNode> parse_compound_statement();
 
+	/**
+	 * @brief Parse a translation unit and return the pointer to its AST node
+	 * 
+	 * @return pointer to the AST node or nullptr if unsuccessful
+	 */
 	TransUnitNode *parse_translation_unit();
 
 	void next_token(void);
 	void previous_token(void);
 	bool expect(Token::Id t);
 
+	/**
+	 * @brief Allocate a new symbol table node and set the current symbol table pointer
+	 */
 	void enter_scope(void);
+	/**
+	 * @brief visit the parent of the current symbol table node
+	 */
 	void exit_scope(void);
 
 public:
 	void error_message(std::string const &str);
 	
+	/**
+	 * @brief parses the token list
+	 * 
+	 * @return true if the parsing if successful
+	 * @return false if the parsing fails
+	 */
 	bool parse();
 
+	/**
+	 * @brief Return the translation unit node (root) of the AST
+	 * 
+	 * @return The root of the AST
+	 */
 	TransUnitNode *get_translation_unit()
 	{
 		return m_translation_unit;
 	}
 
+	/**
+	 * @brief Construct a new Parser object
+	 * 
+	 * @param tl the token list
+	 */
 	Parser(TokenList const &tl)
-		: m_token_list(tl), m_token_eof(Token::Id::END_OF_FILE)
-		, m_token_list_ptr(tl.begin()), m_token_list_end(tl.cend())
-		, m_translation_unit(nullptr), m_st_ptr(nullptr)
+		: m_token_list(tl)
+		, m_token_eof(Token::Id::END_OF_FILE)
+		, m_token_list_ptr(tl.begin())
+		, m_token_list_end(tl.cend())
+		, m_translation_unit(nullptr)
+		, m_st_ptr(nullptr)
 		, m_enum_counter(0)
 	{
 	}
 
+	/**
+	 * @brief Destroy the Parser object
+	 * 
+	 */
 	~Parser()
 	{
 		delete m_translation_unit;
@@ -110,8 +156,8 @@ private:
 
 	std::shared_ptr<CompoundNode> m_current_block;
 
-	TransUnitNode *m_translation_unit;
-	SymbolNode *m_st_ptr;
+	TransUnitNode *m_translation_unit;	// root of the AST
+	SymbolNode *m_st_ptr;	// pointer to the current symbol table node
 
 	size_t m_enum_counter;
 };

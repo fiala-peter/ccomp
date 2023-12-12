@@ -32,6 +32,15 @@ public:
 		FUNCTION
 	};
 
+	/**
+	 * @brief Construct a new Symbol Table Entry object
+	 * 
+	 * @param cat the entry's category
+	 * @param id the entry's identifier
+	 * @param type the entry's type
+	 * @param storage the entry's storage
+	 * @param linkage the entry's linkage
+	 */
 	SymbolTableEntry(Category cat, std::string const &id, Type const &type, Storage storage, Linkage linkage = Linkage::NO_LINKAGE)
 		: m_category(cat)
 		, m_identifier(id)
@@ -68,6 +77,7 @@ public:
 	/** @brief indicates if the entry (object) is external */
 	bool is_static() const { return m_storage == Storage::STATIC; }
 
+	/** @brief return the linkage of the entry */
 	Linkage get_linkage() const { return m_linkage; }
 
 	/** @brief print an entry to an output stream */

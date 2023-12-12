@@ -2088,9 +2088,13 @@ TransUnitNode *Parser::parse_translation_unit()
 
 bool Parser::parse()
 {
+	// delete the syntax tree if not nullptr
 	delete m_translation_unit;
+	// read the first token
 	next_token();
+	// try to parse a translation unit
 	m_translation_unit = parse_translation_unit();
+	// check if the token list has been consumed
 	if (m_current_token->get_id() != Token::Id::END_OF_FILE)
 	{
 		error_message("Tokens remaining after parsing finished.");

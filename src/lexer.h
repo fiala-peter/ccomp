@@ -18,6 +18,9 @@
 /** @brief The lexer returns the tokens as a list of ::Token objects */
 using TokenList = std::list<Token>;
 
+/**
+ * @brief The ::Lexer class converts a text stream into a list of tokens
+ */
 class Lexer
 {
 

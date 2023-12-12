@@ -174,7 +174,7 @@ public:
 	/** @brief Returns the size of the type in bytes */
 	size_t get_size_in_bytes() const;
 
-	/** @brief Returns the size's alignment in bytes */
+	/** @brief Returns the type's alignment in bytes */
 	size_t get_alignment_in_bytes() const;
 
 	/** @brief Compares two types for equality */

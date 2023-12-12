@@ -120,6 +120,8 @@ Type Type::install(TypeNode const &tn, bool as_new)
 
 Type Type::common_real_type(Type const &other) const
 {
+	if (!is_arithmetic())
+		throw __FILE__ ": common_real_type only applicable for arithmetic types";
 	TypeNode::Id common_id = TypeNode::common_real_type(m_ptr->get_node().get_id(), other.m_ptr->get_node().get_id());
 	return install(TypeNode(common_id));
 }

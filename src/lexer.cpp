@@ -123,7 +123,6 @@ char const *Lexer::lex_string_literal(char const *str, Token *token)
 char const *Lexer::lex_character_constant(char const *str, Token *token)
 {
 	char const *end = str;
-	// string literal
 	if (*end == '\'')
 	{
 		end++;
@@ -296,6 +295,7 @@ char const *Lexer::read_next_token(char const *str, Token *token)
 	if (end != str)
 		return end;
 
+	// could not lex anything
 	return str;
 }
 
